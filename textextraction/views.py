@@ -54,7 +54,7 @@ def saveFile(uploadedFile):
     try:
         uploaded_file_instance = UploadedFile(file=uploadedFile)
         uploaded_file_instance.save()
-        return uploaded_file_instance.file.name
+        return uploaded_file_instance
     except Exception as e:
         return HttpResponse("An error occurred while saving the file: {}".format(str(e)))
 
@@ -92,18 +92,24 @@ def extractText(inputPrompts, inputImagePaths):
 
     return response.choices[0].message.content
 
+def saveExtractedText(extractedText, uploadedFile):
+    extractedTextInstance = ExtractedText(file=uploadedFile, text=extractedText)
+    extractedTextInstance.save()
+
 def home(request):
     finalOutput = ""
     uploadedFiles = UploadedFile.objects.all()
 
     if request.method == 'POST':
         if 'uploadFile' in request.FILES:
-            pdfPath = saveFile(request.FILES['uploadFile'])
+            uploadedFile = saveFile(request.FILES['uploadFile'])
+            pdfPath = uploadedFile.file.name
 
             imagePaths = convertPdfToJpg("media/" + pdfPath)
 
             prompts = []
             selectedPrompts = request.POST.getlist('parameter')
+            print(request.POST.get('customParameter'))
 
             if 'owner' in selectedPrompts:
                 prompts.append('Account Owner Name')
@@ -111,7 +117,12 @@ def home(request):
                 prompts.append('Portfolio Value')
             if 'cost-basis' in selectedPrompts:
                 prompts.append('Name and Cost Basis of Each Holding')
+            if request.POST.get('customParameter').strip():
+                prompts.append(request.POST.get('customParameter').strip())
 
             finalOutput = extractText(prompts, imagePaths)
+
+            saveExtractedText(finalOutput,uploadedFile)
+
 
     return render(request, 'textextraction/dashboard.html', {'finalOutput': finalOutput, 'uploadedFiles': uploadedFiles})

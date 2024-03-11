@@ -7,5 +7,4 @@ class UploadedFile(models.Model):
 
 class ExtractedText(models.Model):
     file = models.ForeignKey(UploadedFile, on_delete=models.CASCADE)
-    parameter = models.CharField(max_length=100)
-    value = models.TextField()
+    text = models.TextField(null=True, blank=True)
