@@ -69,7 +69,11 @@ def convertPdfToJpg(pdfPath):
     imagePaths = []
     for i, image in enumerate(images):
         imagePath = outputDirectory / f'{fileName}-page{i}.jpg'
-        image.save(imagePath, 'JPEG')
+        if image.size[0] * image.size[1] > 518400:
+            image.save(imagePath, 'JPEG', optimize = True, quality=20)
+        else:
+            image.save(imagePath, 'JPEG')
+
         pathString = ""
         with open(imagePath, "rb") as imageFile:
             base64Image = base64.b64encode(imageFile.read()).decode('utf-8')
@@ -87,7 +91,7 @@ def extractText(inputPrompts, inputImagePaths):
     response = client.chat.completions.create(
         model="gpt-4-vision-preview",
         messages=messages,
-        max_tokens=300,
+        max_tokens=500,
     )
 
     return response.choices[0].message.content
@@ -109,7 +113,6 @@ def home(request):
 
             prompts = []
             selectedPrompts = request.POST.getlist('parameter')
-            print(request.POST.get('customParameter'))
 
             if 'owner' in selectedPrompts:
                 prompts.append('Account Owner Name')
@@ -126,3 +129,12 @@ def home(request):
 
 
     return render(request, 'textextraction/dashboard.html', {'finalOutput': finalOutput, 'uploadedFiles': uploadedFiles})
+
+def previouslyExtractedText(request):
+    if request.method == 'GET':
+        fileId = request.GET.get("file")
+        fileObj = UploadedFile.objects.get(id=fileId)
+
+        extractedTextObj = ExtractedText.objects.get(file=fileObj)
+
+    return HttpResponse(extractedTextObj.text)
