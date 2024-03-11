@@ -1,5 +1,61 @@
 {% extends 'textextraction/main.html' %}
 
 {% block content %}
-    <h1>DASHBOARD</h1>
+    <div class="container">
+        <h1 class="text-center mt-5">OpenAI's Vision Model</h1>
+        <h5 class="text-center mb-5">Upload a file or select a previously uploaded file, input your prompt and click submit to get your queries answered!</h5>
+        <form method="post"  enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row">
+                <div class="col-5 mb-5">
+                    <label for="uploadFile" class="form-label fs-5"><strong>Upload a File</strong></label>
+                    <input class="form-control" type="file" id="uploadFile"  name="uploadFile">
+                </div>
+                <h3 class="text-center pt-3 col-2">OR</h3>
+                <div class="col-5 mb-5">
+                    <label for="selectFile" class="form-label fs-5"><strong>Select Previously Uploaded File</strong></label>
+                    <div class="dropdown" id="selectFile">
+                        <a class="btn btn-secondary dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Dropdown link
+                        </a>
+
+                        <ul class="dropdown-menu">
+                            {% for f in uploadedFiles %}
+                                <li><a class="dropdown-item" href="#">{{ f.file.name }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mb-5">
+                <label for="prompts" class="form-label fs-5"><strong>Select the information you would like to extract</strong></label>
+                <div class="row">
+                    <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group" id="prompts">
+                        <input type="checkbox" class="btn-check" id="owner" name="parameter" value="owner" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="owner">Account Owner Name</label>
+
+                        <input type="checkbox" class="btn-check" id="portfolio-value" name="parameter" value="portfolio-value"autocomplete="off">
+                        <label class="btn btn-outline-primary" for="portfolio-value">Portfolio Value</label>
+
+                        <input type="checkbox" class="btn-check" id="cost-basis" name="parameter" value="cost-basis" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="cost-basis">Name and Cost Basis of Each Holding</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="d-grid gap-2 col-6 mx-auto mb-5">
+                <button type="submit" class="btn btn-success">Submit</button>
+            </div>
+        </form>
+
+        <div>
+            <label for="prompts" class="form-label fs-5"><strong>Extracted Result</strong></label>
+            <p id="extractedResult">
+                {{ finalOutput }}
+            </p>
+        </div>
+
+
+    </div>
 {% endblock %}
