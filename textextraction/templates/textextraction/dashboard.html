@@ -22,7 +22,7 @@
                         <ul class="dropdown-menu">
                             <li><a class="dropdown-item" href="#" onclick="resetDropdown(this)">Select File</a></li>
                             {% for f in uploadedFiles %}
-                                <li><a class="dropdown-item" href="#" onclick="showGenre(this,'{{ f.id }}')">{{ f.file.name }}</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="showFile(this,'{{ f.id }}')">{{ f.file.name }}</a></li>
                             {% endfor %}
                         </ul>
                     </div>
@@ -56,15 +56,14 @@
 
         <div>
             <label for="prompts" class="form-label fs-5"><strong>Extracted Result</strong></label>
-            <p id="extractedResult">
-                <pre>{{ finalOutput }}</pre>
-            </p>
+                <pre id="extractedResult">{{ finalOutput }}</pre>
         </div>
     </div>
     <script>
-        function showGenre(item, file) {
+        function showFile(item, file) {
             document.getElementById("dropdownText").innerHTML = item.innerHTML;
             document.getElementById("uploadFile").setAttribute("disabled", "disabled");
+            document.getElementById("extractedResult").innerHTML = "";
 
             $.ajax({
                 method: "GET",
